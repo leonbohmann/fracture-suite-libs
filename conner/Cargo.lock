@@ -31,7 +31,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "conner"
-version = "0.0.2-a4"
+version = "0.0.2-a5"
 dependencies = [
  "indicatif",
  "pyo3",
