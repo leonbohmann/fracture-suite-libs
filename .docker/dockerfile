@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.10-slim AS base
+FROM python:3.10-slim
 
 # Common system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -10,25 +10,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     mingw-w64
 
-# Create a build stage for Rust-related installations
-FROM base AS rust-builder
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="$PATH:/root/.cargo/bin"
-RUN cargo install maturin
-RUN rustup target add x86_64-pc-windows-gnu
 
-# Node.js installation stage
-FROM base AS node-builder
 RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
 RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
 RUN apt-get update && apt-get install -y nodejs
 
-# Final image
-FROM base
-# Copy Rust binaries
-COPY --from=rust-builder /root/.cargo/bin/* /usr/local/bin/
-# Copy Node.js binaries
-COPY --from=node-builder /usr/bin/node /usr/bin/
-COPY --from=node-builder /usr/lib/node_modules/ /usr/lib/node_modules/
-# Reduce the layer by cleaning up
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN rustup default stable
+RUN rustup target add x86_64-pc-windows-gnu
+RUN cargo install maturin
