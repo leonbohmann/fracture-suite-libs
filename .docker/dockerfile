@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 FROM base AS rust-builder
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="$PATH:/root/.cargo/bin"
-RUN rustup target add x86_64-pc-windows-gnu & cargo install maturin
+RUN cargo install maturin
+RUN rustup target add x86_64-pc-windows-gnu
 
 # Node.js installation stage
 FROM base AS node-builder
