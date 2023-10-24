@@ -1,12 +1,19 @@
 name: publish-python-package
 run-name: fracsuite-lib publish
-on: [push]
+on:
+  push:
+    paths:
+      - 'conner/**.toml'
 jobs:
   build_job:
     container:
       image: localhost/fracsuite-lib-image
     steps:
     - uses: actions/checkout@v2
+
+    - name: Check Version Change
+      run: |
+        git diff HEAD~1 -- conner/Cargo.toml | grep "\+version" || exit 1
 
     - name: Publish
       run: |
