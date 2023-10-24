@@ -1,0 +1,33 @@
+# Use an official Python runtime as a parent image
+FROM python:3.10-slim
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y curl build-essential
+
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+# Add Cargo to PATH
+ENV PATH="$PATH:/root/.cargo/bin"
+
+# Install Maturin
+RUN cargo install maturin
+
+
+# Add NodeSource repository and install Node.js
+RUN apt-get update
+RUN apt-get install -y ca-certificates curl gnupg
+RUN mkdir -p /etc/apt/keyrings
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+RUN apt-get install -y nodejs
+RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+RUN apt-get update
+RUN apt-get install nodejs -y
+
+# install git
+RUN apt-get update -y && apt-get install -y git
+
+# install mingw-x64
+RUN rustup target add x86_64-pc-windows-gnu
+RUN apt-get update && apt-get install -y mingw-w64

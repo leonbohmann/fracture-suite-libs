@@ -1,0 +1,14 @@
+name: publish-python-package
+run-name: fracsuite-lib publish
+on: [push]
+jobs:
+  build_job:
+    container:
+      image: fracsuite-lib-image
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Publish
+      run: |
+        cd conner
+        maturin publish --username __token__ --password ${{ secrets.PYPI_TOKEN }} --target x86_64-pc-windows-gnu -i python3.10
