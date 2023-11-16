@@ -1,25 +1,20 @@
-use image::{Luma, GrayImage};
-use indicatif::{ProgressBar, ProgressStyle};
 use pyo3::prelude::*;
-use rayon::prelude::*;
 use std::time::Instant;
-use imageproc::contours::{self, find_contours};
-use imageproc::drawing::{draw_polygon_mut, draw_line_segment_mut};
-
-fn p_as_tuple(point: &imageproc::point::Point<i32>) -> (f32, f32) {
-    (point.x as f32, point.y as f32)
-}
+use rayon::prelude::*;
+use indicatif::{ProgressBar, ProgressStyle};
+use opencv::prelude::*;
+use opencv::core;
+use opencv::imgproc;
 
 fn draw_contour(
-    contour: &Vec<imageproc::point::Point<i32>>,
-    base_img: &mut image::ImageBuffer<Luma<u8>, Vec<u8>>,
-    color: u8
-) {
-    for i in 0..contour.len()-1 {
-        let p = contour[i];
-        let p2 = contour[i+1];
-        draw_line_segment_mut(base_img, p_as_tuple(&p), p_as_tuple(&p2), image::Luma([color]));
-    }
+    contour: &Vec<core::Point>,
+    base_img: &mut Mat,
+    color: ::Scalar,
+) -> opencv::Result<()> {
+    let pts: Vec<core::Point> = contour.clone();
+    let pts = [pts].as_ref();
+    imgproc::polylines(base_img, pts, true, color, 1, imgproc::LINE_8, 0)?;
+    Ok(())
 }
 
 // Check, if contours made of points are adjacent to each other.
