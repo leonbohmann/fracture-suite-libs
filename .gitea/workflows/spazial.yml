@@ -1,9 +1,6 @@
 name: publish-python-package
 run-name: fracsuite-lib publish
-on:
-  push:
-    paths:
-      - 'spazial/**.toml'
+on: push
 jobs:
   build_job:
     container:

@@ -8,10 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     gnupg \
     git \
-    mingw-w64 \
-	clang \
-	libclang-dev \
-	libopencv-dev 
+    mingw-w64
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="$PATH:/root/.cargo/bin"
@@ -23,7 +20,3 @@ RUN apt-get update && apt-get install -y nodejs
 RUN rustup default stable
 RUN rustup target add x86_64-pc-windows-gnu
 RUN cargo install maturin
-
-RUN export OPENCV_INCLUDE_PATHS="/usr/include/"
-RUN export OPENCV_LINK_PATHS="/usr/lib/x86_64-linux-gnu/"
-RUN export OPENCV_LINK_LIBS="opencv_core,opencv_imgproc"
