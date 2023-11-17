@@ -1,10 +1,7 @@
-mod contours;
-
 use rayon::prelude::*;
 use std::time::Instant;
 use indicatif::{ProgressBar, ProgressStyle};
 use pyo3::prelude::*;
-use contours::check_contours;
 
 #[pyfunction]
 fn check_points_seq(points: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
@@ -127,7 +124,6 @@ fn check_point(points: &[Vec<i32>], index: usize) -> Vec<i32> {
 fn conner(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(check_points, m)?)?;
     m.add_function(wrap_pyfunction!(check_points_seq, m)?)?;
-    m.add_function(wrap_pyfunction!(check_contours, m)?)?;
     Ok(())
 }
 
