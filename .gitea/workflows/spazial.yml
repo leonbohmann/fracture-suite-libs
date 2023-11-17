@@ -13,5 +13,5 @@ jobs:
 
     - name: Publish
       run: |
-        cd conner
+        cd spazial
         maturin publish --username __token__ --password ${{ secrets.PYPI_TOKEN }} --target x86_64-pc-windows-gnu -i python3.10
