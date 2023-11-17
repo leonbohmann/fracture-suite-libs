@@ -50,8 +50,8 @@ fn l_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) 
     let mpoints: Vec<(f64, f64)> = points.iter().map(|point| (point[0], point[1])).collect();
 
     let res = kfun(&mpoints, area, max_d);
-
-    let lres: Vec<(f64, f64)> = res.iter().map(|(d, k)| (*d, (k / PI).sqrt()-d)).collect();
+    // sqrt(k/PI) - d, from Baddeley S.207
+    let lres: Vec<(f64, f64)> = res.iter().map(|(d, k)| (*d, (k / PI).sqrt() - d)).collect();
 
     // convert tuples to vectors
     // return a tuple of x and y values
