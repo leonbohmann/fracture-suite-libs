@@ -71,7 +71,7 @@ fn euclidean_distance(point1: (f64, f64), point2: (f64, f64)) -> f64 {
     ((x2 - x1).powi(2) + (y2 - y1).powi(2)).sqrt()
 }
 
-
+#[pyfunction]
 // implements a gibss strauss process
 fn gibbs_strauss_process(
     fracture_intensity: f64,
@@ -96,7 +96,7 @@ fn gibbs_strauss_process(
         let x = x_dist.sample(&mut rng);
         let y = y_dist.sample(&mut rng);
         if acceptance_dist.sample(&mut rng) < acceptance_probability {
-            if points.iter().all(|&(px, py)| (x - px).powi(2) + (y - py).powi(2) >= hardcore_radius_squared) {
+            if points.iter().all(|&(px, py)| f64::powi(x - px, 2) + f64::powi(y - py,2) >= hardcore_radius_squared) {
                 points.push((x, y));
                 if points.len() >= n_points {
                     break;
