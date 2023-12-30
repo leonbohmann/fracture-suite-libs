@@ -33,7 +33,7 @@ def l_test(points, area, max_d) -> tuple[list,list]:
 	"""
 
 def gibbs_strauss_process(
-    n_points: int,
+    fracture_intensity: float,
     hardcore_radius: float,
     acceptance_probability: float,
     region_size: tuple[float, float],
@@ -42,7 +42,7 @@ def gibbs_strauss_process(
     Simulates a Gibbs-Strauss process.
 
     Args:
-        n_points (int): The number of points to generate.
+        fracture_intensity (float): The number of fragments per unit area.
         hardcore_radius (float): The minimum distance between points.
         acceptance_probability (float): The probability of accepting a new point.
         region_size (Tuple[float, float]): The area in which to generate points.
