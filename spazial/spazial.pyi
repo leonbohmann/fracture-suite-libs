@@ -52,3 +52,24 @@ def gibbs_strauss_process(
         List[Tuple[float, float]]: A list of generated points, each represented as a tuple of two floats.
     """
     pass
+
+
+def csstraussproc(rect_area: tuple[float, float], delta: float, n: int, c: float, max_iter: int) -> list[tuple[float, float]]:
+    """
+    Simulates a Strauss process.
+
+    Args:
+        rect_area (Tuple[float, float]): The area in which to generate points.
+        delta (float): The minimum distance between points.
+        n (int): The number of points to generate.
+        c (float): The probability of accepting a new point.
+        max_iter (int): The maximum number of iterations to perform.
+
+    Returns:
+        List[Tuple[float, float]]: A list of generated points, each represented as a tuple of two floats.
+    """
+    pass
+
+
+def csstraussproc2(width: float, height: float, delta: float, n: int, c: float, i_max: int) -> list[tuple[float, float]]:
+	pass

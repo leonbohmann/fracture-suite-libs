@@ -9,6 +9,12 @@ use rand::Rng;
 #[cfg(test)]
 use plotters::prelude::*;
 
+mod spatials;
+mod csproc;
+
+use crate::spatials::csstraussproc;
+use crate::csproc::csstraussproc2;
+
 /// estimate the K-value for a set of points and a given distance
 fn kest(points: &[(f64, f64)], area: f64, d: f64) -> f64 {
     let n = points.len() as f64;
@@ -115,6 +121,8 @@ fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(k_test, m)?)?;
     m.add_function(wrap_pyfunction!(l_test, m)?)?;
     m.add_function(wrap_pyfunction!(gibbs_strauss_process, m)?)?;
+    m.add_function(wrap_pyfunction!(csstraussproc, m)?)?;
+    m.add_function(wrap_pyfunction!(csstraussproc2, m)?)?;
     Ok(())
 }
 
