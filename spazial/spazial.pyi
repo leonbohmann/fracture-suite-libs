@@ -2,9 +2,10 @@
 A module for calculating stochastic functions of data sets.
 """
 import numpy as np
+import numpy.typing as npt
 from typing import Any
 
-def k_test(points, area, max_d) -> tuple[list,list]:
+def k_test(points, area, max_d) -> tuple[npt.NDArray,npt.NDArray]:
 	"""
 	Calculate the K-Function for the points in the area for a range of distances.
 	The resulting distances are equally spaced from 0 to max_d.
@@ -15,10 +16,10 @@ def k_test(points, area, max_d) -> tuple[list,list]:
 		max_d: The maximum distance to calculate the K-Function for.
 
 	Returns:
-		An array of values for the K-Function. list[(d, K(d))]
+		(nd.array, nd.array): Two array with x and y values for the K-Function.
 	"""
 
-def l_test(points, area, max_d) -> tuple[list,list]:
+def l_test(points, area, max_d) -> tuple[npt.NDArray,npt.NDArray]:
 	"""
 	Calculate the L-Function for the points in the area for a range of distances.
 	The resulting distances are equally spaced from 0 to max_d.
@@ -29,7 +30,7 @@ def l_test(points, area, max_d) -> tuple[list,list]:
 		max_d: The maximum distance to calculate the L-Function for.
 
 	Returns:
-		list[(d, L(d))]
+		(nd.array, nd.array): Two array with x and y values for the L-Function.
 	"""
 
 def gibbs_strauss_process(
@@ -72,4 +73,18 @@ def csstraussproc(rect_area: tuple[float, float], delta: float, n: int, c: float
 
 
 def csstraussproc2(width: float, height: float, delta: float, n: int, c: float, i_max: int) -> list[tuple[float, float]]:
-	pass
+    """
+    Simulates a Strauss process.
+
+    Args:
+        width (float): The width of the area in which to generate points.
+        height (float): The height of the area in which to generate points.
+        delta (float): The minimum distance between points.
+        n (int): The number of points to generate.
+        c (float): The probability of accepting a new point even if it is closer to another point than delta.
+        max_iter (int): The maximum number of iterations to perform.
+
+    Returns:
+        List[Tuple[float, float]]: A list of generated points, each represented as a tuple of two floats.
+    """
+    pass
