@@ -1,6 +1,9 @@
 name: publish-python-package
 run-name: fracsuite-lib publish
-on: push
+on:
+  push:
+    paths:
+      - 'splintaz/**.toml'
 jobs:
   Publish Splintaz:
     container:
