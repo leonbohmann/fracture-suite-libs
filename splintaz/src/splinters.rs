@@ -3,7 +3,7 @@ use rayon::prelude::*;
 
 use crate::vecs::*;
 
-const MIN_CRACK_WIDTH : i32 = 1;
+const MIN_CRACK_WIDTH : i32 = 0;
 
 /// Function to calculate the fracture surface of a list of contours.
 ///
@@ -78,7 +78,7 @@ fn calculate_contour_fracsurface(
 
                 // if pixel in image is black, set lstar1 to current length
                 //  only if i>2 because the simple crack is 1-2px wide
-                if image[pl1i.0 as usize][pl1i.1 as usize] == 0 && i > MIN_CRACK_WIDTH {
+                if image[pl1i.0 as usize][pl1i.1 as usize] == 0 && i >= MIN_CRACK_WIDTH {
                     lstar1 = norm(&pl1);
                 } else {
                     lstar1done = true;
@@ -95,7 +95,7 @@ fn calculate_contour_fracsurface(
                 }
 
                 // if pixel in image is black, set lstar1 to current length
-                if image[pl2i.0 as usize][pl2i.1 as usize] == 0 && i > MIN_CRACK_WIDTH {
+                if image[pl2i.0 as usize][pl2i.1 as usize] == 0 && i >= MIN_CRACK_WIDTH {
                     lstar2 = norm(&pl2);
                 } else {
                     lstar2done = true;
@@ -106,9 +106,10 @@ fn calculate_contour_fracsurface(
         }
 
         let lstar = (lstar1 + lstar2) / px_p_mm;
-        let lmax = 2.0*lstar + thickness;
+        let lmax = lstar + thickness;
         let lmin = f64::sqrt(thickness.powi(2) + lstar.powi(2));
-        fracture_surface += (lmax+lmin)/2.0 * v_norm / px_p_mm;
+        // half of the surface to each side of the crack
+        fracture_surface += 0.5 * (lmax+lmin)/2.0 * v_norm / px_p_mm;
     }
 
     fracture_surface
