@@ -106,9 +106,9 @@ fn calculate_contour_fracsurface(
         }
 
         let lstar = (lstar1 + lstar2) / px_p_mm;
-        let lm = lstar + thickness;
-        let ld = f64::sqrt(thickness.powi(2) + lstar.powi(2));
-        fracture_surface += 0.5 * (lm+ld)/2.0 * v_norm / px_p_mm;
+        let lmax = 2.0*lstar + thickness;
+        let lmin = f64::sqrt(thickness.powi(2) + lstar.powi(2));
+        fracture_surface += (lmax+lmin)/2.0 * v_norm / px_p_mm;
     }
 
     fracture_surface
