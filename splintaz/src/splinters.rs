@@ -3,6 +3,13 @@ use rayon::prelude::*;
 
 use crate::vecs::*;
 
+/// Function to calculate the fracture surface of a list of contours.
+///
+/// ### Arguments
+/// - contours: A list of contours, each contour being a list of points, each point being a list of two floats
+/// - image: A two-dimensional array of integers representing the image. 0 is black, 255 is white.
+/// - thickness: A float representing the thickness of the splinter
+/// - px_p_mm: A float representing the number of pixels per millimeter
 #[pyfunction]
 pub fn calculate_fracture_surface(
     contours: Vec<Vec<Vec<f64>>>,
@@ -24,8 +31,6 @@ pub fn calculate_fracture_surface(
         // frac_surface
 
         calculate_contour_fracsurface(contour, &image, &thickness, &px_p_mm)
-
-
     }).sum()
 }
 
@@ -70,7 +75,8 @@ fn calculate_contour_fracsurface(
                 }
 
                 // if pixel in image is black, set lstar1 to current length
-                if image[pl1i.0 as usize][pl1i.1 as usize] == 0 {
+                //  only if i>2 because the simple crack is 1-2px wide
+                if image[pl1i.0 as usize][pl1i.1 as usize] == 0 && i > 1 {
                     lstar1 = norm(&pl1);
                 } else {
                     lstar1done = true;
@@ -87,7 +93,7 @@ fn calculate_contour_fracsurface(
                 }
 
                 // if pixel in image is black, set lstar1 to current length
-                if image[pl2i.0 as usize][pl2i.1 as usize] == 0 {
+                if image[pl2i.0 as usize][pl2i.1 as usize] == 0 && i > 1 {
                     lstar2 = norm(&pl2);
                 } else {
                     lstar2done = true;
