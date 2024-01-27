@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 
 mod splinters;
+mod vecs;
 
 use splinters::calculate_fracture_surface;
 

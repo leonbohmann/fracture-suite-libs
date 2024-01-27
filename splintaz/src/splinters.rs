@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 use rayon::prelude::*;
-use std::sync::atomic::{AtomicU64, Ordering};
+
+use crate::vecs::*;
 
 #[pyfunction]
 pub fn calculate_fracture_surface(
@@ -28,50 +29,6 @@ pub fn calculate_fracture_surface(
     }).sum()
 }
 
-fn dist(a: &(f64, f64), b: &(f64, f64)) -> f64 {
-    ((a.0 - b.0).powi(2) + (a.1 - b.1).powi(2)).sqrt()
-}
-
-fn con(a: &(f64, f64), b: &(f64, f64)) -> (f64, f64) {
-    let dx = b.0 - a.0;
-    let dy = b.1 - a.1;
-    (dx, dy)
-}
-
-fn perp(a: &(f64, f64), b: &(f64, f64)) -> (f64, f64) {
-    let dx = b.0 - a.0;
-    let dy = b.1 - a.1;
-    (-dy, dx)
-}
-
-fn perpv(a: &(f64, f64)) -> (f64, f64) {
-    (-a.1, a.0)
-}
-
-fn norm(a: &(f64, f64)) -> f64 {
-    (a.0.powi(2) + a.1.powi(2)).sqrt()
-}
-
-fn ivec(a: &(f64, f64)) -> (i32, i32) {
-    (a.0.round() as i32, a.1.round() as i32)
-}
-
-fn normed(a: &(f64, f64)) -> (f64, f64) {
-    let norm = norm(a);
-    (a.0 / norm, a.1 / norm)
-}
-
-fn vplus(a: &(f64, f64), b: &(f64, f64)) -> (f64, f64) {
-    (a.0 + b.0, a.1 + b.1)
-}
-
-fn vplusf(a: &(f64, f64), b: &(f64, f64), f: f64) -> (f64, f64) {
-    (a.0 + b.0 * f, a.1 + b.1 * f)
-}
-
-fn vtot(a: &Vec<f64>) -> (f64, f64) {
-    (a[0], a[1])
-}
 /// function that takes a list of points, an image and a thickness and returns a float
 /// representing the fracture surface
 fn calculate_contour_fracsurface(
