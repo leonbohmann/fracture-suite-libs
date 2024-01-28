@@ -33,7 +33,7 @@ fn kest(points: &[(f64, f64)], area: f64, d: f64) -> f64 {
 /// calculate the estimated K function for a set of points and multiple distances
 fn kfun(points: &[(f64, f64)], area: f64, max_d: f64) -> Vec<(f64, f64)>{
     (1..)
-        .map(|i| i as f64 * max_d / 100.0)
+        .map(|i| (i as f64 / 100.0)/*percent*/ * max_d )
         .take_while(|&d| d <= max_d)
         .map(|d| (d, kest(points, area, d)))
         .collect()
@@ -59,7 +59,7 @@ fn l_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) 
     let mpoints: Vec<(f64, f64)> = points.iter().map(|point| (point[0], point[1])).collect();
 
     let res = kfun(&mpoints, area, max_d);
-    // sqrt(k/PI) - d, from Baddeley S.207
+    // sqrt(k/PI) - d, from Baddeley S.207 and Dixon 2002
     let lres: Vec<(f64, f64)> = res.iter().map(|(d, k)| (*d, (k / PI).sqrt() - d)).collect();
 
     // convert tuples to vectors
