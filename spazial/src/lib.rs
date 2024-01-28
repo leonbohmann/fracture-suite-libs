@@ -18,10 +18,11 @@ use crate::csproc::csstraussproc2;
 /// estimate the K-value for a set of points and a given distance
 fn kest(points: &[(f64, f64)], area: f64, d: f64) -> f64 {
     let n = points.len() as f64;
-    // let l = n / area;
+    // this iterates over all points in parallel and checks for the amount of other points within the distance d
     let k_value = points.par_iter().enumerate().map(|(i, &point1)| {
-        points[i + 1..].iter().filter(|&&point2| {
-            euclidean_distance(point1, point2) <= d
+        // previously, this was: points[i + 1..].iter()...
+        points[i+1..].iter().filter(|&&point2| {
+            point1 != point2 && euclidean_distance(point1, point2) <= d
         }).count() as f64
     }).sum::<f64>();
 
