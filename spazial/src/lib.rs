@@ -21,13 +21,15 @@ fn kest(points: &[(f64, f64)], area: f64, d: f64) -> f64 {
     // this iterates over all points in parallel and checks for the amount of other points within the distance d
     let k_value = points.par_iter().enumerate().map(|(i, &point1)| {
         // previously, this was: points[i + 1..].iter()...
-        points[i+1..].iter().filter(|&&point2| {
-            point1 != point2 && euclidean_distance(point1, point2) <= d
+        points.iter().filter(|&&point2| {
+            point1 != point2 && euclidean_distance(point1, point2) < d
         }).count() as f64
     }).sum::<f64>();
 
-    // from cskhat (Matlab) and https://github.com/astropy/astropy/blob/main/astropy/stats/spatial.py#L232C27-L232C27
-    2.0 * area * k_value / (n * (n - 1.0))
+    // from cskhat (Matlab)
+    area * k_value / (n*n)
+    // from https://github.com/astropy/astropy/blob/main/astropy/stats/spatial.py#L232C27-L232C27
+    // 2.0 * area * k_value / (n * (n - 1.0))
 }
 
 /// calculate the estimated K function for a set of points and multiple distances
@@ -40,7 +42,7 @@ fn kfun(points: &[(f64, f64)], area: f64, max_d: f64) -> Vec<(f64, f64)>{
 }
 
 #[pyfunction]
-fn k_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) {
+fn khat_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) {
     // convert points to tuples
     let mpoints: Vec<(f64, f64)> = points.iter().map(|point| (point[0], point[1])).collect();
 
@@ -54,13 +56,30 @@ fn k_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) 
 }
 
 #[pyfunction]
-fn l_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) {
+fn lhatc_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) {
     // convert points to tuples
     let mpoints: Vec<(f64, f64)> = points.iter().map(|point| (point[0], point[1])).collect();
 
     let res = kfun(&mpoints, area, max_d);
     // sqrt(k/PI) - d, from Baddeley S.207 and Dixon 2002
     let lres: Vec<(f64, f64)> = res.iter().map(|(d, k)| (*d, (k / PI).sqrt() - d)).collect();
+
+    // convert tuples to vectors
+    // return a tuple of x and y values
+    let x = lres.iter().map(|(d, _)| *d).collect();
+    let y = lres.iter().map(|(_, l)| *l).collect();
+
+    (x, y)
+}
+
+#[pyfunction]
+fn lhat_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) {
+    // convert points to tuples
+    let mpoints: Vec<(f64, f64)> = points.iter().map(|point| (point[0], point[1])).collect();
+
+    let res = kfun(&mpoints, area, max_d);
+    // sqrt(k/PI) - d, from Baddeley S.207 and Dixon 2002
+    let lres: Vec<(f64, f64)> = res.iter().map(|(d, k)| (*d, (k / PI).sqrt())).collect();
 
     // convert tuples to vectors
     // return a tuple of x and y values
@@ -102,12 +121,10 @@ fn gibbs_strauss_process(
     for _ in 0..max_iterations {
         let x = x_dist.sample(&mut rng);
         let y = y_dist.sample(&mut rng);
-        if acceptance_dist.sample(&mut rng) < acceptance_probability {
-            if points.iter().all(|&(px, py)| f64::powi(x - px, 2) + f64::powi(y - py,2) >= hardcore_radius_squared) {
-                points.push((x, y));
-                if points.len() >= n_points {
-                    break;
-                }
+        if acceptance_dist.sample(&mut rng) < acceptance_probability && points.iter().all(|&(px, py)| f64::powi(x - px, 2) + f64::powi(y - py,2) >= hardcore_radius_squared) {
+            points.push((x, y));
+            if points.len() >= n_points {
+                break;
             }
         }
     }
@@ -119,8 +136,9 @@ fn gibbs_strauss_process(
 /// A Python module implemented in Rust.
 #[pymodule]
 fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(k_test, m)?)?;
-    m.add_function(wrap_pyfunction!(l_test, m)?)?;
+    m.add_function(wrap_pyfunction!(khat_test, m)?)?;
+    m.add_function(wrap_pyfunction!(lhatc_test, m)?)?;
+    m.add_function(wrap_pyfunction!(lhat_test, m)?)?;
     m.add_function(wrap_pyfunction!(gibbs_strauss_process, m)?)?;
     m.add_function(wrap_pyfunction!(csstraussproc, m)?)?;
     m.add_function(wrap_pyfunction!(csstraussproc2, m)?)?;
