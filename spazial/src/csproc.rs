@@ -33,7 +33,7 @@ pub fn csstraussproc2(width: f64, height: f64, delta: f64, n: usize, c: f64, i_m
 
 
         //TODO: Delta has to be dependent on the distance and the angle to the impact of the point
-        let angle = rng.gen::<f64>() * 2.0 * std::f64::consts::PI;
+        // let angle = rng.gen::<f64>() * 2.0 * std::f64::consts::PI;
 
         for point in &points {
             if distance(&candidate, point) <= delta {
@@ -42,7 +42,7 @@ pub fn csstraussproc2(width: f64, height: f64, delta: f64, n: usize, c: f64, i_m
             }
         }
 
-        if !too_close || rng.gen::<f64>() <= c.powi(inhibition_count as i32) {
+        if !too_close || rng.gen::<f64>() <= c.powi(inhibition_count) {
             points.push(candidate);
         }
 

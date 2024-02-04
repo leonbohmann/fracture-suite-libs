@@ -46,28 +46,6 @@ def lhat_test(points, area, max_d) -> tuple[npt.NDArray,npt.NDArray]:
 		(nd.array, nd.array): Two array with x and y values for the L-Function.
 	"""
 
-def gibbs_strauss_process(
-    fracture_intensity: float,
-    hardcore_radius: float,
-    acceptance_probability: float,
-    region_size: tuple[float, float],
-    max_iterations: int = None) -> list[tuple[float, float]]:
-    """
-    Simulates a Gibbs-Strauss process.
-
-    Args:
-        fracture_intensity (float): The number of fragments per unit area.
-        hardcore_radius (float): The minimum distance between points.
-        acceptance_probability (float): The probability of accepting a new point.
-        region_size (Tuple[float, float]): The area in which to generate points.
-        max_iterations (Optional[int]): The maximum number of iterations to perform.
-
-    Returns:
-        List[Tuple[float, float]]: A list of generated points, each represented as a tuple of two floats.
-    """
-    pass
-
-
 def csstraussproc(rect_area: tuple[float, float], delta: float, n: int, c: float, max_iter: int) -> list[tuple[float, float]]:
     """
     Simulates a Strauss process.

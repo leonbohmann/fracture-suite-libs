@@ -2,7 +2,6 @@ use pyo3::prelude::*;
 use rayon::prelude::*;
 use std::f64::consts::PI;
 
-use rand::distributions::{Distribution, Uniform};
 
 #[cfg(test)]
 use rand::Rng;
@@ -19,7 +18,7 @@ use crate::csproc::csstraussproc2;
 fn kest(points: &[(f64, f64)], area: f64, d: f64) -> f64 {
     let n = points.len() as f64;
     // this iterates over all points in parallel and checks for the amount of other points within the distance d
-    let k_value = points.par_iter().enumerate().map(|(i, &point1)| {
+    let k_value = points.par_iter().map(|&point1| {
         // previously, this was: points[i + 1..].iter()...
         points.iter().filter(|&&point2| {
             point1 != point2 && euclidean_distance(point1, point2) < d
@@ -213,7 +212,7 @@ fn test_ripleys_func() -> Result<(), Box<dyn std::error::Error>>  {
     let area = w*h; // 100x100 Fläche
     let max_d = 50.0;
     let k_values: Vec<(f64, f64)> = kfun(&points, area, max_d);
-    let mut l_values: Vec<(f64, f64)> = k_values.iter().map(|(d, k)| (*d, (k / PI).sqrt())).collect();
+    let l_values: Vec<(f64, f64)> = k_values.iter().map(|(d, k)| (*d, (k / PI).sqrt())).collect();
     // for i in 1..100 {
     //     let d = i as f64 * max_d / 100.0;
     //     l_values[i].1 -= d;
