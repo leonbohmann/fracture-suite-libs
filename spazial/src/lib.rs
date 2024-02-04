@@ -97,40 +97,6 @@ fn euclidean_distance(point1: (f64, f64), point2: (f64, f64)) -> f64 {
     ((x2 - x1).powi(2) + (y2 - y1).powi(2)).sqrt()
 }
 
-#[pyfunction]
-// implements a gibss strauss process
-fn gibbs_strauss_process(
-    fracture_intensity: f64,
-    hardcore_radius: f64,
-    acceptance_probability: f64,
-    region_size: (f64, f64),
-    max_iterations: Option<usize>
-) -> Vec<(f64, f64)> {
-    let n_points = (fracture_intensity * region_size.0 * region_size.1) as usize;
-
-    let mut points = Vec::new();
-    let (width, height) = region_size;
-    let hardcore_radius_squared = hardcore_radius.powi(2);
-    let max_iterations = max_iterations.unwrap_or(n_points * 100);
-
-    let mut rng = rand::thread_rng();
-    let x_dist = Uniform::new(0.0, width);
-    let y_dist = Uniform::new(0.0, height);
-    let acceptance_dist = Uniform::new(0.0, 1.0);
-
-    for _ in 0..max_iterations {
-        let x = x_dist.sample(&mut rng);
-        let y = y_dist.sample(&mut rng);
-        if acceptance_dist.sample(&mut rng) < acceptance_probability && points.iter().all(|&(px, py)| f64::powi(x - px, 2) + f64::powi(y - py,2) >= hardcore_radius_squared) {
-            points.push((x, y));
-            if points.len() >= n_points {
-                break;
-            }
-        }
-    }
-
-    points
-}
 
 
 /// A Python module implemented in Rust.
@@ -139,7 +105,7 @@ fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(khat_test, m)?)?;
     m.add_function(wrap_pyfunction!(lhatc_test, m)?)?;
     m.add_function(wrap_pyfunction!(lhat_test, m)?)?;
-    m.add_function(wrap_pyfunction!(gibbs_strauss_process, m)?)?;
+
     m.add_function(wrap_pyfunction!(csstraussproc, m)?)?;
     m.add_function(wrap_pyfunction!(csstraussproc2, m)?)?;
     Ok(())
