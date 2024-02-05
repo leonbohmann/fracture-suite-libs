@@ -79,3 +79,32 @@ def csstraussproc2(width: float, height: float, delta: float, n: int, c: float, 
         List[Tuple[float, float]]: A list of generated points, each represented as a tuple of two floats.
     """
     pass
+
+
+
+def csstraussproc_rhciter(
+    width: float,
+    height: float,
+    xy_delta: np.ndarray,
+    impact_point: np.ndarray,
+    n: int,
+    c: float,
+    i_max: int
+) -> list[tuple[float, float]]:
+    """
+    Simulates a Strauss process with a variable hard core radius, that is linearly interpolated using
+    the distance of a candidate point to the impact_point.
+
+    Args:
+        width (float): The width of the area in which to generate points in mm.
+        height (float): The height of the area in which to generate points in mm.
+        xy_delta (float): Rhc array, with xy_delta[0,:] = r and xy_delta[1,:] = rhc.
+        impact_point (tuple[float,float]): Impact point in mm.
+        n (int): The number of points to generate.
+        c (float): The probability of accepting a new point even if it is closer to another point than delta.
+        max_iter (int): The maximum number of iterations to perform.
+
+    Returns:
+        List[Tuple[float, float]]: A list of generated points, each represented as a tuple of two floats.
+    """
+    pass
