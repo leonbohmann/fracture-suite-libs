@@ -14,6 +14,7 @@ mod csproc;
 use crate::spatials::csstraussproc;
 use crate::csproc::csstraussproc2;
 use crate::csproc::csstraussproc_rhciter;
+use crate::csproc::bohmann_process;
 
 /// estimate the K-value for a set of points and a given distance
 fn kest(points: &[(f64, f64)], area: f64, d: f64) -> f64 {
@@ -109,6 +110,7 @@ fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(csstraussproc, m)?)?;
     m.add_function(wrap_pyfunction!(csstraussproc2, m)?)?;
     m.add_function(wrap_pyfunction!(csstraussproc_rhciter, m)?)?;
+    m.add_function(wrap_pyfunction!(bohmann_process, m)?)?;
     Ok(())
 }
 

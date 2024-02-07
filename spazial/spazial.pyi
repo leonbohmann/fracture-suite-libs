@@ -85,7 +85,7 @@ def csstraussproc2(width: float, height: float, delta: float, n: int, c: float, 
 def csstraussproc_rhciter(
     width: float,
     height: float,
-    xy_delta: np.ndarray,
+    r_delta: np.ndarray,
     impact_point: np.ndarray,
     n: int,
     c: float,
@@ -98,7 +98,7 @@ def csstraussproc_rhciter(
     Args:
         width (float): The width of the area in which to generate points in mm.
         height (float): The height of the area in which to generate points in mm.
-        xy_delta (float): Rhc array, with xy_delta[0,:] = r and xy_delta[1,:] = rhc.
+        r_delta (float): Rhc array, with r_delta[0,:] = r and r_delta[1,:] = rhc.
         impact_point (tuple[float,float]): Impact point in mm.
         n (int): The number of points to generate.
         c (float): The probability of accepting a new point even if it is closer to another point than delta.
@@ -106,5 +106,33 @@ def csstraussproc_rhciter(
 
     Returns:
         List[Tuple[float, float]]: A list of generated points, each represented as a tuple of two floats.
+    """
+    pass
+
+def bohmann_process(
+    width: float,
+    height: float,
+    r_range: np.ndarray,
+    r_lambda: np.ndarray,
+    r_delta: np.ndarray,
+    impact_pos: tuple[float,float],
+    c: float,
+    i_max: int) -> np.ndarray:
+    """
+    Simulates a Bohmann process with a variable hard core radius, that is linearly interpolated using
+    the distance of a candidate point to the impact_point.
+
+    Arguments:
+        width (float): The width of the area in which to generate points in mm.
+        height (float): The height of the area in which to generate points in mm.
+        r_range (ndarray): The range of r values to simulate.
+        r_lambda (ndarray): Intensity array, with r_lambda[0,:] = r and r_lambda[1,:] = lambda.
+        r_delta (ndarray): Rhc array, with xy_delta[0,:] = r and xy_delta[1,:] = rhc.
+        impact_pos (tuple[float,float]): Impact point in mm.
+        c (float): The probability of accepting a new point even if it is closer to another point than delta.
+        i_max (int): The maximum number of iterations to perform.
+
+    Returns:
+        ndarray: A list of generated points, each represented as a tuple of two floats.
     """
     pass
