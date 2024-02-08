@@ -251,8 +251,8 @@ pub fn bohmann_process(
         // reset global iterations
         iterations = 0;
 
-        println!("Radius: {} - {} - {} - {}", r0, r1, rc, nr);
-        println!("Angles: {} - {}", r2d(a0), r2d(a1));
+        // println!("Radius: {} - {} - {} - {}", r0, r1, rc, nr);
+        // println!("Angles: {} - {}", r2d(a0), r2d(a1));
         while nr_actual < nr{
             // create random radius and angle between boundaries
             let r = rng.gen_range(r0..r1);
@@ -295,6 +295,33 @@ pub fn bohmann_process(
 
     // remove all points that are outside the boundaries
     points.retain(|&p| p[0] >= 0.0 && p[0] <= width && p[1] >= 0.0 && p[1] <= height);
+    // // Debug Output if necessary
+    // // create plot of distances and deltas
+    // let x = distances;
+    // let y = deltas;
+    // let root = BitMapBackend::new("scatter.png", (640, 480)).into_drawing_area();
+    // root.fill(&WHITE).unwrap();
 
+    // let min_x = x.iter().cloned().fold(f64::INFINITY, f64::min) as f32;
+    // let max_x = x.iter().cloned().fold(f64::NEG_INFINITY, f64::max)as f32;
+    // let min_y = y.iter().cloned().fold(f64::INFINITY, f64::min)as f32;
+    // let max_y = y.iter().cloned().fold(f64::NEG_INFINITY, f64::max)as f32;
+
+    // let mut chart = ChartBuilder::on(&root)
+    //     .caption("Scatter Plot", ("Arial", 50).into_font())
+    //     .margin(5)
+    //     .build_cartesian_2d(min_x..max_x, min_y..max_y).unwrap();
+
+    // chart.configure_mesh().draw().unwrap();
+
+    // chart.draw_series(PointSeries::of_element(
+    //     x.iter().zip(y.iter()).map(|(&x, &y)| (x as f32, y as f32)), // convert to f32
+    //     5,
+    //     ShapeStyle::from(&RED).filled(),
+    //     &|coord, size, style| {
+    //         EmptyElement::at(coord)
+    //             + Circle::new((0, 0), size, style)
+    //     },
+    // )).unwrap();
     points
 }
