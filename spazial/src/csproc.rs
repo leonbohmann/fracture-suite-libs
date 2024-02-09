@@ -287,7 +287,7 @@ pub fn bohmann_process(
 
             iterations += 1;
             if iterations >= i_max {
-                println!("Warning: Maximum number of iterations reached. {}/{} points were generated.", nr_actual, nr);
+                println!("Warning: Maximum number of iterations reached in band {}. {}/{} points were generated.", i, nr_actual, nr);
                 break;
             }
         }
