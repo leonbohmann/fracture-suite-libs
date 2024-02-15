@@ -33,6 +33,7 @@ fn is_valid_point(points: &[(f64, f64)], candidate: (f64, f64), delta: f64, c: f
     }
 }
 
+
 #[pyfunction]
 pub fn csstraussproc(rect_area: (f64, f64), delta: f64, n: usize, c: f64, max_iterations: i32) -> Vec<(f64, f64)> {
     let mut rng = rand::thread_rng();

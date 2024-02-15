@@ -12,6 +12,8 @@ mod spatials;
 mod csproc;
 
 use crate::spatials::csstraussproc;
+
+use crate::csproc::poisson;
 use crate::csproc::csstraussproc2;
 use crate::csproc::csstraussproc_rhciter;
 use crate::csproc::bohmann_process;
@@ -20,7 +22,7 @@ use crate::csproc::bohmann_process;
 fn kest(points: &[(f64, f64)], area: f64, d: f64) -> f64 {
     let n = points.len() as f64;
     // this iterates over all points in parallel and checks for the amount of other points within the distance d
-    let k_value = points.par_iter().map(|&point1| {
+    let k_value = points.iter().map(|&point1| {
         // previously, this was: points[i + 1..].iter()...
         points.iter().filter(|&&point2| {
             point1 != point2 && euclidean_distance(point1, point2) < d
@@ -28,7 +30,7 @@ fn kest(points: &[(f64, f64)], area: f64, d: f64) -> f64 {
     }).sum::<f64>();
 
     // from cskhat (Matlab)
-    area * k_value / (n*n)
+    area * k_value / (n*(n-1.0))
     // from https://github.com/astropy/astropy/blob/main/astropy/stats/spatial.py#L232C27-L232C27
     // 2.0 * area * k_value / (n * (n - 1.0))
 }
@@ -107,6 +109,7 @@ fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(lhatc_test, m)?)?;
     m.add_function(wrap_pyfunction!(lhat_test, m)?)?;
 
+    m.add_function(wrap_pyfunction!(poisson, m)?)?;
     m.add_function(wrap_pyfunction!(csstraussproc, m)?)?;
     m.add_function(wrap_pyfunction!(csstraussproc2, m)?)?;
     m.add_function(wrap_pyfunction!(csstraussproc_rhciter, m)?)?;

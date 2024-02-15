@@ -53,6 +53,16 @@ pub fn interpolate(xy: &[[f64;2]], x0: f64) -> f64 {
 
     y0
 }
+
+
+#[pyfunction]
+pub fn poisson(width: f64, height: f64, n: usize) -> Vec<(f64, f64)> {
+    let mut rng = rand::thread_rng();
+    (0..n).map(|_| (rng.gen::<f64>() * width, rng.gen::<f64>() * height)).collect()
+}
+
+
+
 #[pyfunction]
 pub fn csstraussproc2(width: f64, height: f64, delta: f64, n: usize, c: f64, i_max: i32) -> Vec<[f64;2]> {
     if delta <= 0.0 {
@@ -186,7 +196,7 @@ pub fn csstraussproc_rhciter(
 }
 
 fn circle_area(r: f64, a0: f64, a1: f64) -> f64 {
-    0.5 * (a1 - a0) * r.powi(2)
+    0.5 * f64::abs(a1 - a0) * r.powi(2)
 }
 
 #[pyfunction]

@@ -136,3 +136,18 @@ def bohmann_process(
         ndarray: A list of generated points, each represented as a tuple of two floats.
     """
     pass
+
+
+def poisson(width: float, height: float, n: int) -> np.ndarray:
+    """
+    Simulates a Poisson process.
+
+    Arguments:
+        width (float): The width of the area in which to generate points in mm.
+        height (float): The height of the area in which to generate points in mm.
+        n (int): The number of points to generate.
+
+    Returns:
+        ndarray: A list of generated points, each represented as a tuple of two floats.
+    """
+    pass
