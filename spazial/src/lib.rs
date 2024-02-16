@@ -18,16 +18,62 @@ use crate::csproc::csstraussproc2;
 use crate::csproc::csstraussproc_rhciter;
 use crate::csproc::bohmann_process;
 
+
+fn create_circle(
+    point: &[f64; 2],
+    r: f64,
+) -> Vec<[f64; 2]>
+{
+    // create a circle by creating a set of points
+    let n = 100;
+    let mut points = Vec::with_capacity(n);
+    for i in 0..n {
+        let angle = 2.0 * PI * (i as f64) / (n as f64);
+        let x = point[0] + r * angle.cos();
+        let y = point[1] + r * angle.sin();
+        points.push([x, y]);
+    }
+    points
+}
+
+/// Calculate the weight of a circle on a rectangular plane
+fn circle_weight(
+    point: &[f64; 2],
+    width: f64,
+    height: f64,
+    r: f64,
+) -> f64
+{
+    // create a circle
+    let circle = create_circle(point, r);
+    let mut n_inside = 0;
+
+    for p in &circle {
+        if p[0] >= 0.0 && p[0] <= width && p[1] >= 0.0 && p[1] <= height {
+            n_inside += 1;
+        }
+    }
+
+    n_inside as f64 / circle.len() as f64
+}
+
 /// estimate the K-value for a set of points and a given distance
-fn kest(points: &[(f64, f64)], area: f64, d: f64) -> f64 {
+fn kest(points: &[[f64;2]], width: f64, height: f64, d: f64) -> f64 {
     let n = points.len() as f64;
     // this iterates over all points in parallel and checks for the amount of other points within the distance d
-    let k_value = points.iter().map(|&point1| {
-        // previously, this was: points[i + 1..].iter()...
-        points.iter().filter(|&&point2| {
-            point1 != point2 && euclidean_distance(point1, point2) < d
-        }).count() as f64
+    let k_value = points.par_chunks((n / 4.0) as usize).map(|cpoints| {
+        cpoints.iter().map(|&point1| {
+            // calculate the weight
+            let weight = circle_weight(&point1, width, height, d);
+
+            // previously, this was: points[i + 1..].iter()...
+            points.iter().filter(|&&point2| {
+                point1 != point2 && euclidean_distance(&point1, &point2) < d
+            }).count() as f64 * weight
+        }).sum::<f64>()
     }).sum::<f64>();
+
+    let area = width * height;
 
     // from cskhat (Matlab)
     area * k_value / (n*(n-1.0))
@@ -36,67 +82,50 @@ fn kest(points: &[(f64, f64)], area: f64, d: f64) -> f64 {
 }
 
 /// calculate the estimated K function for a set of points and multiple distances
-fn kfun(points: &[(f64, f64)], area: f64, max_d: f64) -> Vec<(f64, f64)>{
+fn kfun(points: &[[f64;2]], width: f64, height: f64, max_d: f64) -> Vec<[f64;2]> {
     (1..)
         .map(|i| (i as f64 / 100.0)/*percent*/ * max_d )
         .take_while(|&d| d <= max_d)
-        .map(|d| (d, kest(points, area, d)))
+        .map(|d| [d, kest(points, width, height, d)])
         .collect()
 }
 
 #[pyfunction]
-fn khat_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) {
-    // convert points to tuples
-    let mpoints: Vec<(f64, f64)> = points.iter().map(|point| (point[0], point[1])).collect();
-
-    let res = kfun(&mpoints, area, max_d);
-
-    // return a tuple of x and y values
-    let x = res.iter().map(|(d, _)| *d).collect();
-    let y = res.iter().map(|(_, k)| *k).collect();
-
-    (x, y)
+fn khat_test(points: Vec<[f64;2]>, width: f64, height: f64, max_d: f64) -> Vec<[f64;2]> {
+    kfun(&points, width, height, max_d)
 }
 
 #[pyfunction]
-fn lhatc_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) {
+fn lhatc_test(points: Vec<[f64;2]>, width: f64, height: f64, max_d: f64) -> Vec<[f64;2]> {
     // convert points to tuples
-    let mpoints: Vec<(f64, f64)> = points.iter().map(|point| (point[0], point[1])).collect();
-
-    let res = kfun(&mpoints, area, max_d);
+    let mut res = kfun(&points, width, height, max_d);
     // sqrt(k/PI) - d, from Baddeley S.207 and Dixon 2002
-    let lres: Vec<(f64, f64)> = res.iter().map(|(d, k)| (*d, (k / PI).sqrt() - d)).collect();
+    (0..res.len()).for_each(|i| {
+        res[i][1] = (res[i][1] / PI).sqrt() - res[i][0];
+    });
 
-    // convert tuples to vectors
-    // return a tuple of x and y values
-    let x = lres.iter().map(|(d, _)| *d).collect();
-    let y = lres.iter().map(|(_, l)| *l).collect();
-
-    (x, y)
+    res
 }
 
 #[pyfunction]
-fn lhat_test(points: Vec<Vec<f64>>, area: f64, max_d: f64) -> (Vec<f64>, Vec<f64>) {
+fn lhat_test(points: Vec<[f64;2]>, width: f64, height: f64, max_d: f64) -> Vec<[f64;2]> {
     // convert points to tuples
     let mpoints: Vec<(f64, f64)> = points.iter().map(|point| (point[0], point[1])).collect();
 
-    let res = kfun(&mpoints, area, max_d);
+    let mut res = kfun(&points, width, height, max_d);
     // sqrt(k/PI) - d, from Baddeley S.207 and Dixon 2002
-    let lres: Vec<(f64, f64)> = res.iter().map(|(d, k)| (*d, (k / PI).sqrt())).collect();
+    (0..res.len()).for_each(|i| {
+        res[i][1] = (res[i][1] / PI).sqrt();
+    });
 
-    // convert tuples to vectors
-    // return a tuple of x and y values
-    let x = lres.iter().map(|(d, _)| *d).collect();
-    let y = lres.iter().map(|(_, l)| *l).collect();
-
-    (x, y)
+    res
 }
 
 
 
-fn euclidean_distance(point1: (f64, f64), point2: (f64, f64)) -> f64 {
-    let (x1, y1) = point1;
-    let (x2, y2) = point2;
+fn euclidean_distance(point1: &[f64; 2], point2: &[f64; 2]) -> f64 {
+    let (x1, y1) = (point1[0], point1[1]);
+    let (x2, y2) = (point2[0], point2[1]);
     ((x2 - x1).powi(2) + (y2 - y1).powi(2)).sqrt()
 }
 
@@ -119,22 +148,22 @@ fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
 
 
 #[cfg(test)]
-fn generate_random_points(n: usize, width: f64, height: f64) -> Vec<(f64, f64)> {
+fn generate_random_points(n: usize, width: f64, height: f64) -> Vec<[f64;2]> {
     let mut rng = rand::thread_rng();
-    (0..n).map(|_| (rng.gen::<f64>() * width, rng.gen::<f64>() * height)).collect()
+    (0..n).map(|_| [rng.gen::<f64>() * width, rng.gen::<f64>() * height]).collect()
 }
 
 #[cfg(test)]
-fn plot_points(points: &[(f64, f64)], file_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn plot_points(points: &[[f64;2]], file_name: &str) -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new(file_name, (640, 480)).into_drawing_area();
     root.fill(&WHITE)?;
 
-    let (x_min, x_max) = points.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(min, max), &(x, _)| {
-        (min.min(x), max.max(x))
+    let (x_min, x_max) = points.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(min, max), &p| {
+        (min.min(p[0]), max.max(p[0]))
     });
 
-    let (y_min, y_max) = points.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(min, max), &(_, y)| {
-        (min.min(y), max.max(y))
+    let (y_min, y_max) = points.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(min, max), &p| {
+        (min.min(p[1]), max.max(p[1]))
     });
 
     let mut chart = ChartBuilder::on(&root)
@@ -146,7 +175,7 @@ fn plot_points(points: &[(f64, f64)], file_name: &str) -> Result<(), Box<dyn std
 
     chart.configure_mesh().draw()?;
     chart.draw_series(PointSeries::of_element(
-        points.iter().copied(),
+        points.iter().map(|p| (p[0],p[1])),
         3,
         &RED,
         &|coord, size, style| {
@@ -160,21 +189,19 @@ fn plot_points(points: &[(f64, f64)], file_name: &str) -> Result<(), Box<dyn std
 
 #[cfg(test)]
 fn plot_values(
-    values: &[(f64, f64)],
+    values: &[[f64;2]],
     file_name: &str,
     title: &str,
     x_title: &str,
     y_title: &str)
 -> Result<(), Box<dyn std::error::Error>>
 {
-
-
-    let (x_min, x_max) = values.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(min, max), &(x, _)| {
-        (min.min(x), max.max(x))
+    let (x_min, x_max) = values.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(min, max), &p| {
+        (min.min(p[0]), max.max(p[0]))
     });
 
-    let (y_min, y_max) = values.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(min, max), &(_, y)| {
-        (min.min(y), max.max(y))
+    let (y_min, y_max) = values.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(min, max), &p| {
+        (min.min(p[1]), max.max(p[1]))
     });
     let root = BitMapBackend::new(file_name, (640, 480)).into_drawing_area();
     root.fill(&WHITE)?;
@@ -188,7 +215,7 @@ fn plot_values(
     chart.configure_mesh().x_desc(x_title).y_desc(y_title).draw()?;
 
     let data = Vec::from(values);
-    chart.draw_series(LineSeries::new(data, &RED))?;
+    chart.draw_series(LineSeries::new(data.iter().map(|f| (f[0],f[1])), &RED))?;
 
     // add labels to x and y axes
 
@@ -200,10 +227,11 @@ fn plot_values(
 #[test]
 fn test_ripleys() -> Result<(), Box<dyn std::error::Error>>{
     let points = generate_random_points(100, 100.0, 100.0);
-    let area = 10000.0; // 100x100 Fläche
+    let width = 10000.0; // 100x100 Fläche
+    let height = 10000.0; // 100x100 Fläche
     let t = 10.0;
 
-    let k_value = kest(&points, area, t);
+    let k_value = kest(&points, width, height, t);
     println!("Ripley's K-Funktion Wert: {}", k_value);
 
     plot_points(&points, "test_ripleys_points.png")?;
@@ -218,13 +246,13 @@ fn test_ripleys_func() -> Result<(), Box<dyn std::error::Error>>  {
     let points = generate_random_points(500, w, h);
     let area = w*h; // 100x100 Fläche
     let max_d = 50.0;
-    let k_values: Vec<(f64, f64)> = kfun(&points, area, max_d);
-    let l_values: Vec<(f64, f64)> = k_values.iter().map(|(d, k)| (*d, (k / PI).sqrt())).collect();
-    // for i in 1..100 {
-    //     let d = i as f64 * max_d / 100.0;
-    //     l_values[i].1 -= d;
-    // }
+    let k_values = kfun(&points, w, h, max_d);
+    let mut l_values = k_values.clone();
 
+    // sqrt(k/PI) - d, from Baddeley S.207 and Dixon 2002
+    (0..l_values.len()).for_each(|i| {
+        l_values[i][1] = (l_values[i][1] / PI).sqrt() - l_values[i][0];
+    });
 
     plot_values(&k_values, "test_ripleys_func_K.png", "K-Function", "d", "K")?;
     plot_values(&l_values, "test_ripleys_func_L.png", "L-Function", "d", "L")?;

@@ -84,6 +84,7 @@ pub fn csstraussproc2(width: f64, height: f64, delta: f64, n: usize, c: f64, i_m
         let mut too_close = false;
         let mut inhibition_count = 0;
 
+        // measure distance to all other points
         for point in &points {
             if distance(&candidate, point) <= delta {
                 too_close = true;

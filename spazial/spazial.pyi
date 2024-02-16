@@ -5,7 +5,7 @@ import numpy as np
 import numpy.typing as npt
 from typing import Any
 
-def khat_test(points, area, max_d) -> tuple[npt.NDArray,npt.NDArray]:
+def khat_test(points, width, height, max_d) -> npt.NDArray:
 	"""
 	Calculate the K-Function for the points in the area for a range of distances.
 	The resulting distances are equally spaced from 0 to max_d.
@@ -19,7 +19,7 @@ def khat_test(points, area, max_d) -> tuple[npt.NDArray,npt.NDArray]:
 		(nd.array, nd.array): Two array with x and y values for the K-Function.
 	"""
 
-def lhatc_test(points, area, max_d) -> tuple[npt.NDArray,npt.NDArray]:
+def lhatc_test(points, width, height, max_d) -> npt.NDArray:
 	"""
 	Calculate the CENTERED L-Function for the points in the area for a range of distances.
 	The resulting distances are equally spaced from 0 to max_d.
@@ -32,7 +32,7 @@ def lhatc_test(points, area, max_d) -> tuple[npt.NDArray,npt.NDArray]:
 	Returns:
 		(nd.array, nd.array): Two array with x and y values for the L-Function.
 	"""
-def lhat_test(points, area, max_d) -> tuple[npt.NDArray,npt.NDArray]:
+def lhat_test(points, width, height, max_d) -> npt.NDArray:
 	"""
 	Calculate the L-Function for the points in the area for a range of distances.
 	The resulting distances are equally spaced from 0 to max_d.
