@@ -5,45 +5,48 @@ import numpy as np
 import numpy.typing as npt
 from typing import Any
 
-def khat_test(points, width, height, max_d) -> npt.NDArray:
+def khat_test(points, width, height, max_d, use_weights) -> npt.NDArray:
 	"""
 	Calculate the K-Function for the points in the area for a range of distances.
-	The resulting distances are equally spaced from 0 to max_d.
+	The resulting distances are logarithmically spaced from 0 to max_d.
 
 	Arguments:
 		points: The points to calculate the K-Function for. [n,2] ndarray.
 		area: The area to calculate the K-Function for.
 		max_d: The maximum distance to calculate the K-Function for.
+        use_weights: Whether to use weights in the calculation.
 
 	Returns:
-		(nd.array, nd.array): Two array with x and y values for the K-Function.
+		ndarray: Array with (n,2) dimensions. (,0) is the x values, (,1) is the y values.
 	"""
 
-def lhatc_test(points, width, height, max_d) -> npt.NDArray:
+def lhatc_test(points, width, height, max_d, use_weights) -> npt.NDArray:
 	"""
 	Calculate the CENTERED L-Function for the points in the area for a range of distances.
-	The resulting distances are equally spaced from 0 to max_d.
+	The resulting distances are logarithmically spaced from 0 to max_d.
 
 	Arguments:
 		points: The points to calculate the L-Function for. [n,2] ndarray.
 		area: The area to calculate the L-Function for.
 		max_d: The maximum distance to calculate the L-Function for.
+        use_weights: Whether to use weights in the calculation.
 
 	Returns:
-		(nd.array, nd.array): Two array with x and y values for the L-Function.
+		ndarray: Array with (n,2) dimensions. (,0) is the x values, (,1) is the y values.
 	"""
-def lhat_test(points, width, height, max_d) -> npt.NDArray:
+def lhat_test(points, width, height, max_d, use_weights) -> npt.NDArray:
 	"""
 	Calculate the L-Function for the points in the area for a range of distances.
-	The resulting distances are equally spaced from 0 to max_d.
+	The resulting distances are logarithmically spaced from 0 to max_d.
 
 	Arguments:
 		points: The points to calculate the L-Function for. [n,2] ndarray.
 		area: The area to calculate the L-Function for.
 		max_d: The maximum distance to calculate the L-Function for.
+        use_weights: Whether to use weights in the calculation.
 
 	Returns:
-		(nd.array, nd.array): Two array with x and y values for the L-Function.
+		ndarray: Array with (n,2) dimensions. (,0) is the x values, (,1) is the y values.
 	"""
 
 def csstraussproc(rect_area: tuple[float, float], delta: float, n: int, c: float, max_iter: int) -> list[tuple[float, float]]:

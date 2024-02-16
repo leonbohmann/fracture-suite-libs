@@ -58,13 +58,13 @@ fn circle_weight(
 }
 
 /// estimate the K-value for a set of points and a given distance
-fn kest(points: &[[f64;2]], width: f64, height: f64, d: f64) -> f64 {
+fn kest(points: &[[f64;2]], width: f64, height: f64, d: f64, use_weights: bool) -> f64 {
     let n = points.len() as f64;
     // this iterates over all points in parallel and checks for the amount of other points within the distance d
     let k_value = points.par_chunks((n / 4.0) as usize).map(|cpoints| {
         cpoints.iter().map(|&point1| {
             // calculate the weight
-            let weight = circle_weight(&point1, width, height, d);
+            let weight = if use_weights { circle_weight(&point1, width, height, d) } else { 1.0 };
 
             // previously, this was: points[i + 1..].iter()...
             points.iter().filter(|&&point2| {
@@ -81,24 +81,39 @@ fn kest(points: &[[f64;2]], width: f64, height: f64, d: f64) -> f64 {
     // 2.0 * area * k_value / (n * (n - 1.0))
 }
 
-/// calculate the estimated K function for a set of points and multiple distances
-fn kfun(points: &[[f64;2]], width: f64, height: f64, max_d: f64) -> Vec<[f64;2]> {
-    (1..)
-        .map(|i| (i as f64 / 100.0)/*percent*/ * max_d )
-        .take_while(|&d| d <= max_d)
-        .map(|d| [d, kest(points, width, height, d)])
+/// create a custom distance range using square
+fn custom_distance(i: usize, num_intervals: usize, max_d: f64) -> f64 {
+    let i_f64 = i as f64;
+    let normalized_i = i_f64 / num_intervals as f64;
+    // small numbers get small distance, large numbers get large distance
+    max_d * normalized_i * normalized_i
+}
+
+
+/// calculate the estimated K function for a set of points and multiple distances ranging from 0 to max_d
+fn kfun(points: &[[f64;2]], width: f64, height: f64, max_d: f64, use_weights: bool) -> Vec<[f64;2]> {
+    let num_intervals = 100;
+    // let log_max_d = max_d.log10();
+    // let log_min_d = 0.0;
+    // let log_interval = (log_max_d - log_min_d) / num_intervals as f64;
+
+    (0..=num_intervals)
+        .map(|i| {
+            let d = custom_distance(i, num_intervals, max_d);
+            [d, kest(points, width, height, d, use_weights)]
+        })
         .collect()
 }
 
 #[pyfunction]
-fn khat_test(points: Vec<[f64;2]>, width: f64, height: f64, max_d: f64) -> Vec<[f64;2]> {
-    kfun(&points, width, height, max_d)
+fn khat_test(points: Vec<[f64;2]>, width: f64, height: f64, max_d: f64, use_weights: bool) -> Vec<[f64;2]> {
+    kfun(&points, width, height, max_d, use_weights)
 }
 
 #[pyfunction]
-fn lhatc_test(points: Vec<[f64;2]>, width: f64, height: f64, max_d: f64) -> Vec<[f64;2]> {
+fn lhatc_test(points: Vec<[f64;2]>, width: f64, height: f64, max_d: f64, use_weights: bool) -> Vec<[f64;2]> {
     // convert points to tuples
-    let mut res = kfun(&points, width, height, max_d);
+    let mut res = kfun(&points, width, height, max_d, use_weights);
     // sqrt(k/PI) - d, from Baddeley S.207 and Dixon 2002
     (0..res.len()).for_each(|i| {
         res[i][1] = (res[i][1] / PI).sqrt() - res[i][0];
@@ -108,11 +123,8 @@ fn lhatc_test(points: Vec<[f64;2]>, width: f64, height: f64, max_d: f64) -> Vec<
 }
 
 #[pyfunction]
-fn lhat_test(points: Vec<[f64;2]>, width: f64, height: f64, max_d: f64) -> Vec<[f64;2]> {
-    // convert points to tuples
-    let mpoints: Vec<(f64, f64)> = points.iter().map(|point| (point[0], point[1])).collect();
-
-    let mut res = kfun(&points, width, height, max_d);
+fn lhat_test(points: Vec<[f64;2]>, width: f64, height: f64, max_d: f64, use_weights: bool) -> Vec<[f64;2]> {
+    let mut res = kfun(&points, width, height, max_d, use_weights);
     // sqrt(k/PI) - d, from Baddeley S.207 and Dixon 2002
     (0..res.len()).for_each(|i| {
         res[i][1] = (res[i][1] / PI).sqrt();
@@ -231,7 +243,7 @@ fn test_ripleys() -> Result<(), Box<dyn std::error::Error>>{
     let height = 10000.0; // 100x100 Fläche
     let t = 10.0;
 
-    let k_value = kest(&points, width, height, t);
+    let k_value = kest(&points, width, height, t, true);
     println!("Ripley's K-Funktion Wert: {}", k_value);
 
     plot_points(&points, "test_ripleys_points.png")?;
@@ -246,7 +258,7 @@ fn test_ripleys_func() -> Result<(), Box<dyn std::error::Error>>  {
     let points = generate_random_points(500, w, h);
     let area = w*h; // 100x100 Fläche
     let max_d = 50.0;
-    let k_values = kfun(&points, w, h, max_d);
+    let k_values = kfun(&points, w, h, max_d, true);
     let mut l_values = k_values.clone();
 
     // sqrt(k/PI) - d, from Baddeley S.207 and Dixon 2002
