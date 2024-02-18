@@ -196,10 +196,36 @@ pub fn csstraussproc_rhciter(
     points
 }
 
+/// Calculates the area of a circle segment.
+///
+/// ### Arguments
+///
+/// * `r` - The radius of the circle.
+/// * `a0` - The starting angle of the segment in radians.
+/// * `a1` - The ending angle of the segment in radians.
+///
+/// ### Returns
+///
+/// The area of the circle segment as a f64 value.
 fn circle_area(r: f64, a0: f64, a1: f64) -> f64 {
     0.5 * f64::abs(a1 - a0) * r.powi(2)
 }
-
+/// Generates points using the Bohmann process within the given width and height.
+///
+/// # Arguments
+///
+/// * `width` - The width of the spatial context.
+/// * `height` - The height of the spatial context.
+/// * `r_range` - The range of radii for the Bohmann process as a vector of values the radii boundaries.
+/// * `r_lambda` - Data for intensity interpolation, 2d Array with (:,0)=r and (:,1)=lambda.
+/// * `r_delta` - Data for rhc interpolation, 2D array with (:,0)=r and (:,1)=rhc.
+/// * `impact_pos` - The impact position as an array of two f64 values representing the x and y coordinates.
+/// * `c` - The inhibition parameter, which controls the probability of point inhibition.
+/// * `i_max` - The maximum number of iterations before stopping the generation process.
+///
+/// # Returns
+///
+/// A vector of arrays, where each array contains two f64 values representing the x and y coordinates of a point.
 #[pyfunction]
 pub fn bohmann_process(
     width: f64,
