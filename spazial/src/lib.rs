@@ -152,8 +152,20 @@ fn euclidean_distance(point1: &[f64; 2], point2: &[f64; 2]) -> f64 {
 #[pymodule]
 fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
     let version = env!("CARGO_PKG_VERSION");
-    println!("SPAZIAL, made by Leon Bohmann (c) 2024");
-    println!("Package version: {}", version);
+
+    // println!(
+    //     r#"
+    //      ___ ___  _    _______   _   _
+    //     / __| _ \/_\  |_  /_ _| /_\ | |
+    //     \__ \  _/ _ \  / / | | / _ \| |__
+    //     |___/_|/_/ \_\/___|___/_/ \_\____|
+    //     "#
+    // );
+
+    // println!("Loaded SPAZIAL, made by Leon Bohmann (c) 2024");
+
+    // I've run into issues compiling rust to python, version can be checked this way
+    println!("Spazial version: {}", version);
 
     m.add_function(wrap_pyfunction!(khat_test, m)?)?;
     m.add_function(wrap_pyfunction!(lhatc_test, m)?)?;
