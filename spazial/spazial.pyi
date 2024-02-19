@@ -120,7 +120,8 @@ def bohmann_process(
     r_delta: np.ndarray,
     impact_pos: tuple[float,float],
     c: float,
-    i_max: int) -> np.ndarray:
+    i_max: int,
+    no_warn: bool) -> np.ndarray:
     """
     Simulates a Bohmann process with a variable hard core radius, that is linearly interpolated using
     the distance of a candidate point to the impact_point.

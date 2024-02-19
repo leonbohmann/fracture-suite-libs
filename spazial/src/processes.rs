@@ -235,7 +235,8 @@ pub fn bohmann_process(
     r_delta: Vec<[f64;2]>,
     impact_pos: [f64;2],
     c: f64,
-    i_max: i64) -> Vec<[f64;2]>
+    i_max: i64,
+    no_warn: bool) -> Vec<[f64;2]>
 {
     if !(0.0..=1.0).contains(&c) {
         panic!("C must be in the interval [0,1].");
@@ -324,7 +325,9 @@ pub fn bohmann_process(
 
             iterations += 1;
             if iterations >= i_max {
-                println!("Warning: Maximum number of iterations reached in band {}. {}/{} points were generated.", i, nr_actual, nr);
+                if !no_warn {
+                    println!("Warning: Maximum number of iterations reached in band {}. {}/{} points were generated.", i, nr_actual, nr);
+                }
                 break;
             }
         }
@@ -360,5 +363,45 @@ pub fn bohmann_process(
     //             + Circle::new((0, 0), size, style)
     //     },
     // )).unwrap();
+    points
+}
+
+
+#[pyfunction]
+pub fn cluster(width: f64, height: f64, n: usize, centers: Vec<[f64;2]>, c: f64, i_max: i32) -> Vec<[f64;2]> {
+    if !(0.0..=1.0).contains(&c) {
+        panic!("C must be in the interval [0,1].");
+    }
+
+    let mut rng = rand::thread_rng();
+    let mut points = Vec::with_capacity(n);
+    points.push(generate_point(width, height));
+
+    let mut iterations = 0;
+
+    while points.len() < n {
+        let candidate = generate_point(width, height);
+        let mut too_close = false;
+        let mut inhibition_count = 0;
+
+        for point in &points {
+            if distance(&candidate, point) <= 1.0 {
+                too_close = true;
+                inhibition_count += 1;
+            }
+        }
+
+        if !too_close || rng.gen::<f64>() <= c.powi(inhibition_count) {
+            points.push(candidate);
+        }
+
+        iterations += 1;
+        if iterations >= i_max {
+            println!("Warning: Maximum number of iterations reached. {}/{} points were generated.", points.len(), n);
+            println!("> Equivalent fracture intensity: {}", points.len() as f64 / (width * height));
+            break;
+        }
+    }
+
     points
 }

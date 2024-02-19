@@ -9,14 +9,14 @@ use rand::Rng;
 use plotters::prelude::*;
 
 mod spatials;
-mod csproc;
+mod processes;
 
 use crate::spatials::csstraussproc;
 
-use crate::csproc::poisson;
-use crate::csproc::csstraussproc2;
-use crate::csproc::csstraussproc_rhciter;
-use crate::csproc::bohmann_process;
+use crate::processes::poisson;
+use crate::processes::csstraussproc2;
+use crate::processes::csstraussproc_rhciter;
+use crate::processes::bohmann_process;
 
 
 fn create_circle(
