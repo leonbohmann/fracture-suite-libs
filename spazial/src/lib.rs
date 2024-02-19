@@ -60,6 +60,11 @@ fn circle_weight(
 /// estimate the K-value for a set of points and a given distance
 fn kest(points: &[[f64;2]], width: f64, height: f64, d: f64, use_weights: bool) -> f64 {
     let n = points.len() as f64;
+
+    if points.is_empty() {
+        println!("No points given, returning 0.0");
+    }
+
     // this iterates over all points in parallel and checks for the amount of other points within the distance d
     let k_value = points.par_chunks((n / 4.0) as usize).map(|cpoints| {
         cpoints.iter().map(|&point1| {
@@ -146,6 +151,10 @@ fn euclidean_distance(point1: &[f64; 2], point2: &[f64; 2]) -> f64 {
 /// A Python module implemented in Rust.
 #[pymodule]
 fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
+    let version = env!("CARGO_PKG_VERSION");
+    println!("SPAZIAL, made by Leon Bohmann (c) 2024");
+    println!("Package version: {}", version);
+
     m.add_function(wrap_pyfunction!(khat_test, m)?)?;
     m.add_function(wrap_pyfunction!(lhatc_test, m)?)?;
     m.add_function(wrap_pyfunction!(lhat_test, m)?)?;
