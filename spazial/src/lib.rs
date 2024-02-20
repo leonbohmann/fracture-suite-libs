@@ -146,11 +146,8 @@ fn euclidean_distance(point1: &[f64; 2], point2: &[f64; 2]) -> f64 {
     ((x2 - x1).powi(2) + (y2 - y1).powi(2)).sqrt()
 }
 
-
-
-/// A Python module implemented in Rust.
-#[pymodule]
-fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
+#[pyfunction]
+fn initialize() {
     let version = env!("CARGO_PKG_VERSION");
 
     // println!(
@@ -166,6 +163,13 @@ fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
 
     // I've run into issues compiling rust to python, version can be checked this way
     println!("Spazial version: {}", version);
+
+}
+
+/// A Python module implemented in Rust.
+#[pymodule]
+fn spazial(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(initialize, m)?)?;
 
     m.add_function(wrap_pyfunction!(khat_test, m)?)?;
     m.add_function(wrap_pyfunction!(lhatc_test, m)?)?;
