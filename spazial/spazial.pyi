@@ -5,6 +5,10 @@ import numpy as np
 import numpy.typing as npt
 from typing import Any
 
+def initialize() -> None:
+    """Displays the version string."""
+    pass
+
 def khat_test(points, width, height, max_d, use_weights) -> npt.NDArray:
 	"""
 	Calculate the K-Function for the points in the area for a range of distances.
