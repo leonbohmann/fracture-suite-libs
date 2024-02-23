@@ -65,8 +65,16 @@ fn kest(points: &[[f64;2]], width: f64, height: f64, d: f64, use_weights: bool) 
         println!("No points given, returning 0.0");
     }
 
+    let chunks = {
+        let n = n as usize;
+        if n < 4 {
+            1
+        } else {
+            n / 4
+        }
+    };
     // this iterates over all points in parallel and checks for the amount of other points within the distance d
-    let k_value = points.par_chunks((n / 4.0) as usize).map(|cpoints| {
+    let k_value = points.par_chunks(chunks).map(|cpoints| {
         cpoints.iter().map(|&point1| {
             // calculate the weight
             let weight = if use_weights { circle_weight(&point1, width, height, d) } else { 1.0 };
