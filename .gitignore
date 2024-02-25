@@ -2,3 +2,4 @@ target/
 .venv
 .docker/fracsuite-lib-image2.tar
 .docker/fracsuite-lib-image.tar
+readmepriv.md
